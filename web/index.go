@@ -43,6 +43,8 @@ func NewWeb() *Engine {
 func DefaultWeb() *Engine {
 	e := gin.New()
 	logger.LoggerClient().Warningln("[WARNING] Creating an Engine instance with the Logger 、ErrHandler and Recovery middleware already attached.")
+	e.NoMethod(middleware.HandleNotFound)
+	e.NoRoute(middleware.HandleNotFound)
 	e.Use(middleware.Logger(), middleware.ErrHandler(), gin.Recovery())
 	return &Engine{Engine: e}
 }
