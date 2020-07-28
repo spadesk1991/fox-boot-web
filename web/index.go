@@ -7,6 +7,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/spadesk1991/fox-boot-web/logger"
+
+	"github.com/spadesk1991/fox-boot-web/middleware"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
@@ -31,8 +35,15 @@ type Engine struct {
 
 type RegistryFunc func()
 
-func NewEngine() *Engine {
+func NewWeb() *Engine {
 	e := gin.New()
+	return &Engine{Engine: e}
+}
+
+func DefaultWeb() *Engine {
+	e := gin.New()
+	logger.LoggerClient().Warningln("[WARNING] Creating an Engine instance with the Logger 、ErrHandler and Recovery middleware already attached.")
+	e.Use(middleware.Logger(), middleware.ErrHandler(), gin.Recovery())
 	return &Engine{Engine: e}
 }
 
