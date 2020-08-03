@@ -67,7 +67,7 @@ func (r *returnResponse) jsonOK(c *gin.Context) {
 	c.JSON(http.StatusOK, r)
 }
 
-func jsonBadRequest(c *gin.Context, err error) {
+func JsonBadRequest(c *gin.Context, err error) {
 	res := returnResponse{
 		Code:   100400,
 		Msg:    err.Error(),
@@ -87,7 +87,7 @@ func (service *Engine) handle(httpMethod, relativePath string, handlers ...inter
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (string, error))(c)
 				if err != nil {
-					jsonBadRequest(c, err)
+					JsonBadRequest(c, err)
 					return
 				}
 				r := &returnResponse{
@@ -102,7 +102,7 @@ func (service *Engine) handle(httpMethod, relativePath string, handlers ...inter
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (int, error))(c)
 				if err != nil {
-					jsonBadRequest(c, err)
+					JsonBadRequest(c, err)
 					return
 				}
 				r := returnResponse{
@@ -117,7 +117,7 @@ func (service *Engine) handle(httpMethod, relativePath string, handlers ...inter
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (interface{}, error))(c)
 				if err != nil {
-					jsonBadRequest(c, err)
+					JsonBadRequest(c, err)
 					return
 				}
 				r := returnResponse{
@@ -132,7 +132,7 @@ func (service *Engine) handle(httpMethod, relativePath string, handlers ...inter
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (map[string]interface{}, error))(c)
 				if err != nil {
-					jsonBadRequest(c, err)
+					JsonBadRequest(c, err)
 					return
 				}
 				r := returnResponse{
@@ -147,7 +147,7 @@ func (service *Engine) handle(httpMethod, relativePath string, handlers ...inter
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (bool, error))(c)
 				if err != nil {
-					jsonBadRequest(c, err)
+					JsonBadRequest(c, err)
 					return
 				}
 				r := returnResponse{
