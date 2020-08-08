@@ -30,6 +30,7 @@ type IUnRegistry interface {
 
 type Engine struct {
 	*gin.Engine
+	prefix         *gin.RouterGroup
 	unRegistryFunc RegistryFunc
 }
 
@@ -46,7 +47,7 @@ func DefaultWeb() *Engine {
 	e.NoMethod(middleware.HandleNotFound)
 	e.NoRoute(middleware.HandleNotFound)
 	e.Use(middleware.Logger(), middleware.ErrHandler(), gin.Recovery())
-	return &Engine{Engine: e}
+	return &Engine{Engine: e, prefix: e.Group("/")}
 }
 
 func (service *Engine) Mount(controllers ...IService) *Engine {
@@ -164,8 +165,13 @@ func (service *Engine) handle(httpMethod, relativePath string, handlers ...inter
 	}
 	service.Engine.Handle(httpMethod, relativePath, arr...)
 }
+func (service *Engine) Prefix(relativePath string, handlers ...gin.HandlerFunc) *Engine {
+	service.prefix = service.prefix.Group(relativePath, handlers...)
+	return service
+}
+
 func (service *Engine) Group(relativePath string, handlers ...gin.HandlerFunc) *Engine {
-	service.Engine.RouterGroup = *service.Engine.Group(relativePath, handlers...)
+	service.Engine.RouterGroup = *service.prefix.Group(relativePath, handlers...)
 	return service
 }
 
