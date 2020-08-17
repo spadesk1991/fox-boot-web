@@ -7,6 +7,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/spadesk1991/fox-boot-web/webErrors"
+
 	"github.com/spadesk1991/fox-boot-web/logger"
 
 	"github.com/spadesk1991/fox-boot-web/middleware"
@@ -58,24 +60,32 @@ func (service *Engine) Mount(controllers ...IService) *Engine {
 	return service
 }
 
-type returnResponse struct {
-	Code   int         `json:"code"`
-	Msg    string      `json:"msg"`
-	Result interface{} `json:"result"`
-}
-
-func (r *returnResponse) jsonOK(c *gin.Context) {
+func JsonOK(c *gin.Context, res interface{}) {
+	r := webErrors.Error{
+		Code:   0,
+		Msg:    "success",
+		Result: res,
+	}
 	c.JSON(http.StatusOK, r)
 }
 
-func JsonBadRequest(c *gin.Context, err error) {
-	res := returnResponse{
-		Code:   100400,
+func JsonError(c *gin.Context, err error) {
+	e := new(webErrors.Error)
+	switch err.(type) {
+	case *webErrors.Error:
+		e = err.(*webErrors.Error)
+	case error:
+		e = webErrors.BadRequestError(err.Error())
+	default:
+		e = webErrors.BadRequestError(err.Error())
+	}
+	res := webErrors.Error{
+		Code:   e.Code,
 		Msg:    err.Error(),
 		Result: nil,
 	}
 	logrus.Warningf("%+v\n", err)
-	c.JSON(http.StatusBadRequest, res)
+	c.JSON(e.StatusCode, res)
 }
 
 func (service *Engine) handle(httpMethod, relativePath string, handlers ...interface{}) {
@@ -88,75 +98,50 @@ func (service *Engine) handle(httpMethod, relativePath string, handlers ...inter
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (string, error))(c)
 				if err != nil {
-					JsonBadRequest(c, err)
+					JsonError(c, err)
 					return
 				}
-				r := &returnResponse{
-					Code:   0,
-					Msg:    "ok",
-					Result: res,
-				}
-				r.jsonOK(c)
+				JsonOK(c, res)
 			}
 			arr = append(arr, f)
 		case func(c *gin.Context) (int, error):
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (int, error))(c)
 				if err != nil {
-					JsonBadRequest(c, err)
+					JsonError(c, err)
 					return
 				}
-				r := returnResponse{
-					Code:   0,
-					Msg:    "ok",
-					Result: res,
-				}
-				r.jsonOK(c)
+				JsonOK(c, res)
 			}
 			arr = append(arr, f)
 		case func(c *gin.Context) (interface{}, error):
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (interface{}, error))(c)
 				if err != nil {
-					JsonBadRequest(c, err)
+					JsonError(c, err)
 					return
 				}
-				r := returnResponse{
-					Code:   0,
-					Msg:    "ok",
-					Result: res,
-				}
-				r.jsonOK(c)
+				JsonOK(c, res)
 			}
 			arr = append(arr, f)
 		case func(c *gin.Context) (map[string]interface{}, error):
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (map[string]interface{}, error))(c)
 				if err != nil {
-					JsonBadRequest(c, err)
+					JsonError(c, err)
 					return
 				}
-				r := returnResponse{
-					Code:   0,
-					Msg:    "ok",
-					Result: res,
-				}
-				r.jsonOK(c)
+				JsonOK(c, res)
 			}
 			arr = append(arr, f)
 		case func(c *gin.Context) (bool, error):
 			f := func(c *gin.Context) {
 				res, err := handler.(func(c *gin.Context) (bool, error))(c)
 				if err != nil {
-					JsonBadRequest(c, err)
+					JsonError(c, err)
 					return
 				}
-				r := returnResponse{
-					Code:   0,
-					Msg:    "ok",
-					Result: res,
-				}
-				r.jsonOK(c)
+				JsonOK(c, res)
 			}
 			arr = append(arr, f)
 		default:
