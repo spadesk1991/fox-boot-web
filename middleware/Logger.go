@@ -61,8 +61,8 @@ func Logger() gin.HandlerFunc {
 				logrus.Error(e)
 			}
 			c.Request.Body.Close()
-			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bt)) // 重新设置body
-			param.Body = strings.ReplaceAll(string(bt), "\n", "")
+			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bt))      // 重新设置body
+			param.Body = strings.ReplaceAll(string(bt), "\n", "")[:512] // 最多打印512个字节
 
 			if raw != "" {
 				path = path + "?" + raw
