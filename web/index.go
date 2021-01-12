@@ -92,7 +92,7 @@ func (service *Engine) handle(httpMethod, relativePath string, handlers ...inter
 	arr := make([]gin.HandlerFunc, 0)
 	for _, handler := range handlers {
 		switch handler.(type) {
-		case func(c *gin.Context):
+		case func(c *gin.Context), gin.HandlerFunc:
 			arr = append(arr, handler.(func(c *gin.Context)))
 		case func(c *gin.Context) (string, error):
 			f := func(c *gin.Context) {
